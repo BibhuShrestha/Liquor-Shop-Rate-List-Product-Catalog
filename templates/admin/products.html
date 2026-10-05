@@ -1,0 +1,144 @@
+﻿{% extends 'base.html' %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Products</h2>
+        <p class="text-muted mb-0">{{ products|length }} product(s) in catalogue</p>
+    </div>
+    <a href="{{ url_for('main.add_product') }}" class="btn btn-dark">+ Add Product</a>
+</div>
+
+{% if products %}
+<div class="card p-0" style="overflow:hidden;">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="products-table">
+            <thead style="background:#1f2937;color:#fff;">
+                <tr>
+                    <th style="width:80px;padding-left:1.2rem;">Image</th>
+                    <th>Product Name</th>
+                    <th>Brand</th>
+                    <th>Category</th>
+                    <th style="text-align:center;">Variants</th>
+                    <th>Stock Status</th>
+                    <th style="text-align:right;padding-right:1.2rem;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                {% set variants_available = product.variants|selectattr('stock_status','equalto','Available')|list|length %}
+                {% set variants_oos = product.variants|selectattr('stock_status','equalto','Out of Stock')|list|length %}
+                <tr style="border-bottom:1px solid #f0f0f0;">
+                    <td style="padding-left:1.2rem;">
+                        {% set img = product.image %}
+                        {% if img and img != 'placeholder.svg' %}
+                            {% if img.startswith('http://') or img.startswith('https://') %}
+                                <img src="{{ img }}" alt="{{ product.product_name }}"
+                                     style="width:64px;height:64px;object-fit:cover;border-radius:12px;border:2px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);"
+                                     onerror="this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+                            {% elif img.startswith('uploads/') %}
+                                <img src="{{ url_for('main.uploaded_file', filename=img.replace('uploads/', '')) }}"
+                                     alt="{{ product.product_name }}"
+                                     style="width:64px;height:64px;object-fit:cover;border-radius:12px;border:2px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);"
+                                     onerror="this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+                            {% else %}
+                                <img src="{{ url_for('main.uploaded_file', filename=img) }}"
+                                     alt="{{ product.product_name }}"
+                                     style="width:64px;height:64px;object-fit:cover;border-radius:12px;border:2px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);"
+                                     onerror="this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+                            {% endif %}
+                        {% else %}
+                            <div style="width:64px;height:64px;border-radius:12px;background:#f3f4f6;border:2px dashed #d1d5db;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">
+                                🍾
+                            </div>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <div class="fw-semibold" style="font-size:.97rem;">{{ product.product_name }}</div>
+                        {% if product.description %}
+                        <div class="text-muted" style="font-size:.78rem;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{{ product.description }}">{{ product.description }}</div>
+                        {% endif %}
+                        <div class="mt-1">
+                            {% if product.status == 'active' %}
+                            <span class="badge" style="background:#dcfce7;color:#166534;font-size:.7rem;">Active</span>
+                            {% else %}
+                            <span class="badge" style="background:#fee2e2;color:#991b1b;font-size:.7rem;">Inactive</span>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    <td>
+                        <span style="font-size:.9rem;color:#374151;">{{ product.brand }}</span>
+                    </td>
+
+                    <td>
+                        {% set cat = product.category.name if product.category else 'Uncategorized' %}
+                        {% set cat_colors = [
+                            '#e0f2fe,#0369a1', '#fef9c3,#854d0e', '#f3e8ff,#6b21a8',
+                            '#dcfce7,#166534', '#ffedd5,#9a3412', '#fce7f3,#9d174d'
+                        ] %}
+                        {% set cat_idx = loop.index0 % 6 %}
+                        <span class="badge" style="background:{{ cat_colors[cat_idx].split(',')[0] }};color:{{ cat_colors[cat_idx].split(',')[1] }};font-size:.8rem;padding:.35rem .65rem;font-weight:500;border-radius:20px;">
+                            {{ cat }}
+                        </span>
+                    </td>
+
+                    <td style="text-align:center;">
+                        <span class="badge" style="background:#e0f2fe;color:#0f172a;font-size:.85rem;padding:.35rem .8rem;border-radius:20px;">
+                            {{ product.variants|length }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {% if product.variants %}
+                            {% if variants_available > 0 and variants_oos == 0 %}
+                                <span class="badge" style="background:#dcfce7;color:#166534;font-size:.8rem;padding:.35rem .65rem;border-radius:20px;">
+                                    All Available
+                                </span>
+                            {% elif variants_available == 0 %}
+                                <span class="badge" style="background:#fee2e2;color:#991b1b;font-size:.8rem;padding:.35rem .65rem;border-radius:20px;">
+                                    Out of Stock
+                                </span>
+                            {% else %}
+                                <span class="badge" style="background:#fef9c3;color:#854d0e;font-size:.8rem;padding:.35rem .65rem;border-radius:20px;">
+                                    Partial ({{ variants_available }}/{{ product.variants|length }})
+                                </span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted small">No variants</span>
+                        {% endif %}
+                    </td>
+
+                    <td style="text-align:right;padding-right:1.2rem;">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a class="btn btn-sm btn-outline-dark" href="{{ url_for('main.edit_product', product_id=product.id) }}" style="border-radius:8px;">Edit</a>
+                            <form method="POST" action="{{ url_for('main.delete_product', product_id=product.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius:8px;"
+                                        onclick="return confirm('Delete {{ product.product_name }}?')">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="card p-5 text-center">
+    <div style="font-size:4rem;margin-bottom:1rem;">📦</div>
+    <h4 class="text-muted">No products added yet</h4>
+    <p class="text-muted mb-3">Start by adding your first product or importing from Excel/CSV.</p>
+    <div class="d-flex gap-3 justify-content-center">
+        <a href="{{ url_for('main.add_product') }}" class="btn btn-dark">+ Add Product</a>
+        <a href="{{ url_for('main.import_products') }}" class="btn btn-outline-dark">Import File</a>
+    </div>
+</div>
+{% endif %}
+
+<style>
+#products-table tbody tr:hover { background: #f8fafc !important; transition: background .15s; }
+</style>
+{% endblock %}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="800" height="600" fill="#e5e7eb"/>
+  <rect x="180" y="120" width="440" height="360" rx="18" fill="#d1d5db"/>
+  <text x="400" y="300" text-anchor="middle" font-size="42" font-family="Arial, sans-serif" fill="#4b5563">Liquor Shop</text>
+</svg>

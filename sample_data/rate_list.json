@@ -1,0 +1,7 @@
+[
+  {"product_name": "Blue Moon", "brand": "Blue Moon", "category": "Whisky", "image": "bluemoon.jpg", "size": "750ml", "price": 2500},
+  {"product_name": "Blue Moon", "brand": "Blue Moon", "category": "Whisky", "image": "bluemoon.jpg", "size": "375ml", "price": 1300},
+  {"product_name": "Blue Moon", "brand": "Blue Moon", "category": "Whisky", "image": "bluemoon.jpg", "size": "180ml", "price": 700},
+  {"product_name": "Royal Reserve", "brand": "Royal Reserve", "category": "Vodka", "image": "royalreserve.jpg", "size": "750ml", "price": 1800},
+  {"product_name": "Royal Reserve", "brand": "Royal Reserve", "category": "Vodka", "image": "royalreserve.jpg", "size": "375ml", "price": 900}
+]

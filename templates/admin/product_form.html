@@ -1,0 +1,109 @@
+﻿{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if product else 'Add' }} Product{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">{{ 'Edit' if product else 'Add' }} Product</h2>
+    <a href="{{ url_for('main.products') }}" class="btn btn-outline-secondary btn-sm">Back</a>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Product Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="product_name"
+                   value="{{ product.product_name if product else '' }}" required>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Brand <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="brand"
+                   value="{{ product.brand if product else '' }}" required>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+            <select class="form-select" name="category_id" required>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {{ 'selected' if product and product.category_id == cat.id }}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-semibold">Status</label>
+            <select class="form-select" name="status">
+                <option value="active" {{ 'selected' if not product or product.status == 'active' }}>Active</option>
+                <option value="inactive" {{ 'selected' if product and product.status == 'inactive' }}>Inactive</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-semibold">Image</label>
+            {% if product and product.image and product.image != 'placeholder.svg' %}
+                {% set img = product.image %}
+                {% if img.startswith('http://') or img.startswith('https://') %}
+                    <img src="{{ img }}" style="height:42px;border-radius:8px;margin-bottom:6px;display:block;" onerror="this.style.display='none'">
+                {% elif img.startswith('uploads/') %}
+                    <img src="{{ url_for('main.uploaded_file', filename=img.replace('uploads/', '')) }}" style="height:42px;border-radius:8px;margin-bottom:6px;display:block;" onerror="this.style.display='none'">
+                {% else %}
+                    <img src="{{ url_for('main.uploaded_file', filename=img) }}" style="height:42px;border-radius:8px;margin-bottom:6px;display:block;" onerror="this.style.display='none'">
+                {% endif %}
+            {% endif %}
+            <input type="file" class="form-control" name="image" accept=".jpg,.jpeg,.png,.webp">
+        </div>
+        <div class="col-12">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea class="form-control" name="description" rows="2">{{ product.description if product else '' }}</textarea>
+        </div>
+    </div>
+
+    <hr class="my-4">
+    <h5>Sizes &amp; Prices</h5>
+    <div id="variantRows">
+        {% set variants = product.variants if product and product.variants else [none] %}
+        {% for variant in variants %}
+        <div class="row g-2 mb-2 variant-row align-items-center">
+            <div class="col-md-3">
+                <input class="form-control" name="size" placeholder="e.g. 750ml"
+                       value="{{ variant.size if variant else '' }}">
+            </div>
+            <div class="col-md-3">
+                <input class="form-control" name="price" placeholder="Price"
+                       value="{{ variant.price if variant else '' }}">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" name="stock_status">
+                    {% for s in ['Available', 'Out of Stock', 'Coming Soon'] %}
+                    <option value="{{ s }}" {{ 'selected' if variant and variant.stock_status == s }}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input class="form-control" name="display_order" placeholder="Order"
+                       value="{{ variant.display_order if variant else loop.index }}">
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-outline-danger w-100" onclick="this.closest('.variant-row').remove()">×</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <button type="button" class="btn btn-outline-secondary btn-sm mt-1" onclick="addRow()">+ Add Size</button>
+
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-dark">Save Product</button>
+        <a href="{{ url_for('main.products') }}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
+
+<script>
+function addRow() {
+    const t = `<div class="row g-2 mb-2 variant-row align-items-center">
+        <div class="col-md-3"><input class="form-control" name="size" placeholder="e.g. 750ml"></div>
+        <div class="col-md-3"><input class="form-control" name="price" placeholder="Price"></div>
+        <div class="col-md-3"><select class="form-select" name="stock_status">
+            <option>Available</option><option>Out of Stock</option><option>Coming Soon</option>
+        </select></div>
+        <div class="col-md-2"><input class="form-control" name="display_order" value="1"></div>
+        <div class="col-md-1"><button type="button" class="btn btn-outline-danger w-100" onclick="this.closest('.variant-row').remove()">×</button></div>
+    </div>`;
+    document.getElementById('variantRows').insertAdjacentHTML('beforeend', t);
+}
+</script>
+{% endblock %}

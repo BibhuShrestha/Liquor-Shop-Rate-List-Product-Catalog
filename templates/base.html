@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Rate List Admin{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; }
+        .sidebar { background: #111827; min-height: 100vh; padding: 1.5rem 1rem; }
+        .sidebar h5 { color: #fff; font-weight: 700; margin-bottom: 1.5rem; letter-spacing: .02em; }
+        .sidebar a { color: #9ca3af; text-decoration: none; display: block; padding: .45rem .75rem; border-radius: 8px; font-size: .9rem; transition: background .15s, color .15s; }
+        .sidebar a:hover, .sidebar a.active { background: #374151; color: #fff; }
+        .card { border: none; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,.06); }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<div class="container-fluid">
+    <div class="row">
+        <aside class="col-md-2 sidebar">
+            <h5>Liquor Admin</h5>
+            <nav class="d-flex flex-column gap-1">
+                <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('main.products') }}">Products</a>
+                <a href="{{ url_for('main.categories') }}">Categories</a>
+                <a href="{{ url_for('main.import_products') }}">Import</a>
+                <a href="{{ url_for('main.export_page') }}">Export</a>
+                <hr style="border-color:#374151;margin:.5rem 0;">
+                <a href="{{ url_for('main.public_rate_list') }}" target="_blank">View Rate List</a>
+                <a href="{{ url_for('main.logout') }}" style="color:#f87171;">Logout</a>
+            </nav>
+        </aside>
+        <main class="col-md-10 p-4">
+{% else %}
+<div class="container py-5">
+{% endif %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category if category in ['success','danger','warning','info'] else 'info' }} alert-dismissible mt-2" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+{% if current_user.is_authenticated %}
+        </main>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% else %}
+</div>
+{% endif %}
+</body>
+</html>
